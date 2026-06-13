@@ -9,7 +9,7 @@ A Reddit/StackOverflow-style discussion forum built with FastAPI, React, and Pos
 One command starts everything — database, backend, and frontend with hot reload:
 
 ```bash
-docker compose --profile dev up -d
+docker compose up -d
 ```
 
 | URL | What |
@@ -20,7 +20,7 @@ docker compose --profile dev up -d
 Stop everything at the end of the day:
 
 ```bash
-docker compose --profile dev down
+docker compose down
 ```
 
 The only times you need extra commands on top of this:
@@ -49,7 +49,7 @@ The default values work out of the box for local development. No changes needed.
 ### Step 2 — Start everything
 
 ```bash
-docker compose --profile dev up -d --build
+docker compose up -d --build
 ```
 
 Wait about 10 seconds for the database to become healthy.
@@ -77,8 +77,7 @@ docker exec forum_backend python -m alembic upgrade head
 |---|---|---|
 | FastAPI backend | `8080` | `8000` |
 | PostgreSQL | `5433` | `5432` |
-| Frontend (Docker static) | `3001` | `80` |
-| Frontend (Vite dev) | `5173` | — |
+| Frontend (Vite dev) | `5173` | `5173` |
 
 ---
 
@@ -127,11 +126,7 @@ VITE_APP_NAME=Discussion Forum
 Once the first-time setup is done, the daily workflow is:
 
 ```bash
-# 1. Start backend + database (if not already running)
-docker compose up -d db backend
-
-# 2. Start frontend dev server
-cd frontend && npm run dev
+docker compose up -d
 ```
 
 The backend has hot reload enabled — Python file changes apply automatically without restarting. The frontend has Vite HMR — React/TS changes apply instantly in the browser.
