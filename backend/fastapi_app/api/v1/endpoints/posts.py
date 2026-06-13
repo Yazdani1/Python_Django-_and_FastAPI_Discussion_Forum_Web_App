@@ -4,7 +4,12 @@ from datetime import date
 from fastapi import APIRouter, Depends, Query, Response, status
 
 from fastapi_app.api.v1.dependencies import get_post_service
-from fastapi_app.core.cache import cache_delete, cache_delete_pattern, cache_get, cache_set
+from fastapi_app.core.cache import (
+    cache_delete,
+    cache_delete_pattern,
+    cache_get,
+    cache_set,
+)
 from fastapi_app.core.dependencies import get_current_user
 from fastapi_app.models.user import User
 from fastapi_app.schemas.post import PostCreate, PostListItem, PostRead, PostUpdate
@@ -13,11 +18,17 @@ from fastapi_app.utils.responses import ApiResponse
 
 router = APIRouter(prefix="/posts", tags=["posts"])
 
-_LIST_TTL = 60       # seconds — list cache
-_DETAIL_TTL = 300    # seconds — single post cache
+_LIST_TTL = 60  # seconds — list cache
+_DETAIL_TTL = 300  # seconds — single post cache
 
 
-def _list_key(search: str | None, date_from: date | None, date_to: date | None, page: int, page_size: int) -> str:
+def _list_key(
+    search: str | None,
+    date_from: date | None,
+    date_to: date | None,
+    page: int,
+    page_size: int,
+) -> str:
     return f"posts:list:{search}:{date_from}:{date_to}:{page}:{page_size}"
 
 

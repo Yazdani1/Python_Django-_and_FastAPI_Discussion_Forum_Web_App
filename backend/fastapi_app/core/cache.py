@@ -19,7 +19,9 @@ async def connect_redis() -> None:
         _redis = client
         logger.info("Redis connected at %s", settings.REDIS_URL)
     except Exception:
-        logger.warning("Redis not available at %s — caching disabled", settings.REDIS_URL)
+        logger.warning(
+            "Redis not available at %s — caching disabled", settings.REDIS_URL
+        )
         _redis = None
 
 
