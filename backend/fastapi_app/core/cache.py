@@ -13,9 +13,14 @@ _redis: aioredis.Redis | None = None
 
 async def connect_redis() -> None:
     global _redis
-    _redis = aioredis.from_url(settings.REDIS_URL, decode_responses=True)
-    await _redis.ping()
-    logger.info("Redis connected at %s", settings.REDIS_URL)
+    try:
+        client = aioredis.from_url(settings.REDIS_URL, decode_responses=True)
+        await client.ping()
+        _redis = client
+        logger.info("Redis connected at %s", settings.REDIS_URL)
+    except Exception:
+        logger.warning("Redis not available at %s — caching disabled", settings.REDIS_URL)
+        _redis = None
 
 
 async def disconnect_redis() -> None:

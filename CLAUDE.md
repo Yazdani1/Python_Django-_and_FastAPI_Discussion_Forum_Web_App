@@ -200,7 +200,63 @@ Before writing code for any new feature:
 
 ---
 
-## 14. Naming Conventions
+## 14. CI/CD Compatibility Rules
+
+Every change must pass CI before being considered done. CI runs three jobs: backend lint → API tests → frontend build. Any new infrastructure dependency (a new service, a new env var, a new package) **must** be reflected in all three places or the pipeline will fail.
+
+### When adding a new service (Redis, Celery, S3, etc.)
+
+- [ ] Add the service to `docker-compose.yml`
+- [ ] Add the service to **every CI job** in `.github/workflows/ci.yml` that starts the app
+- [ ] Add the new env var to the top-level `env:` block in `ci.yml`
+- [ ] Add the env var to `backend/.env.example`
+- [ ] Make the service **fail gracefully** — if the service is unavailable, the app must still start (log a warning, disable the feature). Never let an optional service crash the app on startup.
+
+### Before pushing any backend change
+
+Run this locally first — if it passes locally it will pass in CI:
+
+```bash
+# From backend/
+ruff check fastapi_app/
+ruff format --check fastapi_app/
+python -m pytest fastapi_app/tests/ -v --tb=short
+```
+
+### Before pushing any frontend change
+
+```bash
+# From frontend/
+npm run lint
+npm run type-check
+npm run test
+npm run build
+```
+
+### Key rule — graceful degradation for optional services
+
+Optional services (Redis, email, S3) must never block app startup. Always wrap the connection attempt in try/except and fall back to disabled mode:
+
+```python
+# CORRECT — app starts even if Redis is down
+async def connect_redis() -> None:
+    try:
+        client = aioredis.from_url(...)
+        await client.ping()
+        _redis = client
+    except Exception:
+        logger.warning("Redis unavailable — caching disabled")
+        _redis = None
+
+# WRONG — crashes the app if Redis is down
+async def connect_redis() -> None:
+    _redis = aioredis.from_url(...)
+    await _redis.ping()  # raises → app fails to start
+```
+
+---
+
+## 15. Naming Conventions
 
 | Context | Convention | Example |
 |---|---|---|
