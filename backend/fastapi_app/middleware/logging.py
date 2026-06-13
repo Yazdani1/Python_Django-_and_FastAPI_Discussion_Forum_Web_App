@@ -19,4 +19,5 @@ async def logging_middleware(request: Request, call_next: Callable) -> Response:
         response.status_code,
         duration_ms,
     )
+    response.headers["X-Response-Time"] = f"{duration_ms:.1f}ms"
     return response

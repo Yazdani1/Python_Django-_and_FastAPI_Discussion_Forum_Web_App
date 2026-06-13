@@ -54,6 +54,7 @@ A Reddit/StackOverflow-style discussion forum with:
 |---|---|
 | Docker | Containerization |
 | Docker Compose | Local orchestration |
+| Redis | Response caching (posts list + detail) |
 | Nginx | Reverse proxy (production) |
 
 ---
@@ -355,6 +356,7 @@ Run migrations: `cd backend && alembic upgrade head`
 | `JWTHandler` | `fastapi_app/core/security.py` | JWT create/verify |
 | `PasswordHandler` | `fastapi_app/core/security.py` | bcrypt hash/verify |
 | `ExceptionMiddleware` | `fastapi_app/middleware/exception.py` | Global error handler |
+| `cache_get/set/delete` | `fastapi_app/core/cache.py` | Redis async cache helpers |
 | `UserRole` / `ROLE_LEVELS` | `fastapi_app/enums.py` | Role enum + level map |
 
 ### Frontend

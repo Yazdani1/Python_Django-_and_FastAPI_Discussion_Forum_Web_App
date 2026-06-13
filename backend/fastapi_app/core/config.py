@@ -35,6 +35,8 @@ class Settings(BaseSettings):
 
     CORS_ALLOWED_ORIGINS: list[str] = ["http://localhost:5173", "http://localhost:3000"]
 
+    REDIS_URL: str = "redis://localhost:6379/0"
+
     @property
     def is_production(self) -> bool:
         return self.APP_ENV == "production"

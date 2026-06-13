@@ -1,3 +1,6 @@
+# Caching
+redis[asyncio]==5.2.1
+
 # Web frameworks
 fastapi==0.115.5
 uvicorn[standard]==0.32.1

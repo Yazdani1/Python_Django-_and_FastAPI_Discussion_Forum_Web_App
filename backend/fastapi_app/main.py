@@ -7,6 +7,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
 from fastapi_app.api.v1.router import api_v1_router
+from fastapi_app.core.cache import connect_redis, disconnect_redis
 from fastapi_app.core.config import settings
 from fastapi_app.middleware.exception import exception_middleware
 from fastapi_app.middleware.logging import logging_middleware
@@ -22,7 +23,9 @@ Path("static/avatars").mkdir(parents=True, exist_ok=True)
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    await connect_redis()
     yield
+    await disconnect_redis()
 
 
 app = FastAPI(
