@@ -25,10 +25,9 @@ A Reddit/StackOverflow-style discussion forum with:
 | Tool | Version | Purpose |
 |---|---|---|
 | Python | 3.13+ | Runtime |
-| Django | 5+ | Admin, ORM, session management |
-| FastAPI | Latest | REST API layer |
+| FastAPI | Latest | REST API framework |
 | PostgreSQL | 16+ | Primary database |
-| SQLAlchemy | 2+ | ORM for FastAPI |
+| SQLAlchemy | 2+ | Async ORM |
 | Alembic | Latest | Database migrations |
 | Pydantic | v2 | Request/response validation |
 | Pytest | Latest | Testing |
@@ -76,7 +75,6 @@ Discussion_Forum/
 │   │   ├── env.py
 │   │   └── versions/
 │   │       └── 0001_create_users_and_posts.py
-│   ├── django_app/
 │   └── fastapi_app/
 │       ├── main.py
 │       ├── enums.py              # UserRole enum + ROLE_LEVELS
@@ -181,7 +179,7 @@ Discussion_Forum/
 
 | Decision | Choice | Reason |
 |---|---|---|
-| Two backend frameworks | Django + FastAPI | Django for admin/ORM ecosystem; FastAPI for performant API with type safety |
+| Backend framework | FastAPI | Async-first, fast, type-safe REST API with native Pydantic integration |
 | JWT in HttpOnly cookies | Cookies, not localStorage | XSS protection — JS cannot access HttpOnly cookies |
 | SQLAlchemy for FastAPI | Not Django ORM | FastAPI is async-first; SQLAlchemy async is a better fit |
 | Separate Alembic migrations | Not Django migrations | SQLAlchemy models managed by Alembic, not Django |
