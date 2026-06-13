@@ -1,8 +1,6 @@
-import uuid
 from datetime import datetime, timezone
 
 import pytest
-from httpx import AsyncClient
 
 from fastapi_app.schemas.user import UserRead
 from fastapi_app.tests.conftest import make_user

@@ -3,7 +3,9 @@ from fastapi import HTTPException, status
 
 class NotFoundError(HTTPException):
     def __init__(self, resource: str = "Resource") -> None:
-        super().__init__(status_code=status.HTTP_404_NOT_FOUND, detail=f"{resource} not found")
+        super().__init__(
+            status_code=status.HTTP_404_NOT_FOUND, detail=f"{resource} not found"
+        )
 
 
 class UnauthorizedError(HTTPException):
@@ -23,4 +25,6 @@ class ConflictError(HTTPException):
 
 class ValidationError(HTTPException):
     def __init__(self, message: str = "Validation failed") -> None:
-        super().__init__(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail=message)
+        super().__init__(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail=message
+        )

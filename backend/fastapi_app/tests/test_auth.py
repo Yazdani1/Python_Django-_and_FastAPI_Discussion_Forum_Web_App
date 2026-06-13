@@ -1,10 +1,7 @@
-import uuid
 from datetime import datetime, timezone
 
 import pytest
-from httpx import AsyncClient
 
-from fastapi_app.enums import UserRole
 from fastapi_app.schemas.user import UserRead
 from fastapi_app.tests.conftest import make_user
 from fastapi_app.utils.exceptions import ConflictError, UnauthorizedError
@@ -33,7 +30,11 @@ async def test_register_success(auth_client):
 
     response = await ac.post(
         "/api/v1/auth/register",
-        json={"email": "new@example.com", "username": "newuser", "password": "password123"},
+        json={
+            "email": "new@example.com",
+            "username": "newuser",
+            "password": "password123",
+        },
     )
 
     assert response.status_code == 201
@@ -50,7 +51,11 @@ async def test_register_duplicate_email(auth_client):
 
     response = await ac.post(
         "/api/v1/auth/register",
-        json={"email": "existing@example.com", "username": "newuser", "password": "password123"},
+        json={
+            "email": "existing@example.com",
+            "username": "newuser",
+            "password": "password123",
+        },
     )
 
     assert response.status_code == 409
@@ -63,7 +68,11 @@ async def test_register_duplicate_username(auth_client):
 
     response = await ac.post(
         "/api/v1/auth/register",
-        json={"email": "new@example.com", "username": "taken", "password": "password123"},
+        json={
+            "email": "new@example.com",
+            "username": "taken",
+            "password": "password123",
+        },
     )
 
     assert response.status_code == 409

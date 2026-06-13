@@ -48,7 +48,11 @@ class UserService(BaseService[User, UserRepository]):
             raise ValidationError("Avatar file size must be under 5 MB")
 
         AVATARS_DIR.mkdir(parents=True, exist_ok=True)
-        ext = file.filename.rsplit(".", 1)[-1] if file.filename and "." in file.filename else "jpg"
+        ext = (
+            file.filename.rsplit(".", 1)[-1]
+            if file.filename and "." in file.filename
+            else "jpg"
+        )
         filename = f"{user.id}.{ext}"
         file_path = AVATARS_DIR / filename
 

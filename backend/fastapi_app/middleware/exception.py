@@ -11,7 +11,7 @@ logger = logging.getLogger(__name__)
 async def exception_middleware(request: Request, call_next: Callable) -> Response:
     try:
         return await call_next(request)
-    except SQLAlchemyError as exc:
+    except SQLAlchemyError:
         logger.exception("Database error on %s %s", request.method, request.url.path)
         return JSONResponse(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -23,7 +23,7 @@ async def exception_middleware(request: Request, call_next: Callable) -> Respons
                 "meta": None,
             },
         )
-    except Exception as exc:
+    except Exception:
         logger.exception("Unhandled error on %s %s", request.method, request.url.path)
         return JSONResponse(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,

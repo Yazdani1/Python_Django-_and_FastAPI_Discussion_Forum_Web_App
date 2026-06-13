@@ -17,7 +17,11 @@ _COOKIE_OPTS = dict(
 )
 
 
-@router.post("/register", status_code=status.HTTP_201_CREATED, response_model=ApiResponse[UserRead])
+@router.post(
+    "/register",
+    status_code=status.HTTP_201_CREATED,
+    response_model=ApiResponse[UserRead],
+)
 async def register(
     data: RegisterRequest,
     service: AuthService = Depends(get_auth_service),
@@ -66,6 +70,7 @@ async def refresh_token(
 ) -> ApiResponse[None]:
     if not refresh_token:
         from fastapi import HTTPException
+
         raise HTTPException(status_code=401, detail="Refresh token missing")
 
     new_access, new_refresh = await service.refresh(refresh_token)

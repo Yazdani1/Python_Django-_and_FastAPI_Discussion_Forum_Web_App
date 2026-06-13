@@ -31,14 +31,22 @@ class PostRepository(BaseRepository[Post]):
 
         if search:
             term = f"%{search}%"
-            query = query.where(
-                or_(Post.title.ilike(term), Post.content.ilike(term))
-            )
+            query = query.where(or_(Post.title.ilike(term), Post.content.ilike(term)))
         if date_from:
-            dt_from = datetime(date_from.year, date_from.month, date_from.day, tzinfo=timezone.utc)
+            dt_from = datetime(
+                date_from.year, date_from.month, date_from.day, tzinfo=timezone.utc
+            )
             query = query.where(Post.created_at >= dt_from)
         if date_to:
-            dt_to = datetime(date_to.year, date_to.month, date_to.day, 23, 59, 59, tzinfo=timezone.utc)
+            dt_to = datetime(
+                date_to.year,
+                date_to.month,
+                date_to.day,
+                23,
+                59,
+                59,
+                tzinfo=timezone.utc,
+            )
             query = query.where(Post.created_at <= dt_to)
 
         count_result = await self._session.execute(
@@ -53,7 +61,9 @@ class PostRepository(BaseRepository[Post]):
         )
         posts = list(result.scalars().all())
 
-        meta = MetaData(page=page, page_size=page_size, total=total, total_pages=total_pages)
+        meta = MetaData(
+            page=page, page_size=page_size, total=total, total_pages=total_pages
+        )
         return posts, meta
 
     async def count_by_author(self, author_id: uuid.UUID) -> int:

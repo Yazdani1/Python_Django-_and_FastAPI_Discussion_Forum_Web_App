@@ -1,11 +1,15 @@
 import uuid
 from datetime import datetime, timezone
+from typing import TYPE_CHECKING
 
 from sqlalchemy import DateTime, ForeignKey, String, Text
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from fastapi_app.core.database import Base
+
+if TYPE_CHECKING:
+    from fastapi_app.models.user import User
 
 
 class Post(Base):

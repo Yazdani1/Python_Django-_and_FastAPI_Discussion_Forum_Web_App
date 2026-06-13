@@ -8,7 +8,9 @@ from httpx import ASGITransport, AsyncClient
 
 os.environ.setdefault("APP_ENV", "testing")
 os.environ.setdefault("APP_SECRET_KEY", "test-secret-key")
-os.environ.setdefault("DATABASE_URL", "postgresql+asyncpg://test:test@localhost:5432/test_db")
+os.environ.setdefault(
+    "DATABASE_URL", "postgresql+asyncpg://test:test@localhost:5432/test_db"
+)
 os.environ.setdefault("DATABASE_PASSWORD", "test")
 os.environ.setdefault("JWT_SECRET_KEY", "test-jwt-secret")
 os.environ.setdefault("CORS_ALLOWED_ORIGINS", '["http://localhost:5173"]')
@@ -47,7 +49,9 @@ def make_user(
 
 @pytest.fixture
 async def client() -> AsyncClient:
-    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as ac:
+    async with AsyncClient(
+        transport=ASGITransport(app=app), base_url="http://test"
+    ) as ac:
         yield ac
 
 
@@ -79,7 +83,9 @@ def admin_user() -> User:
 @pytest.fixture
 async def auth_client(mock_auth_service):
     app.dependency_overrides[get_auth_service] = lambda: mock_auth_service
-    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as ac:
+    async with AsyncClient(
+        transport=ASGITransport(app=app), base_url="http://test"
+    ) as ac:
         yield ac, mock_auth_service
     app.dependency_overrides.pop(get_auth_service, None)
 
@@ -88,7 +94,9 @@ async def auth_client(mock_auth_service):
 async def user_client(mock_user_service, test_user):
     app.dependency_overrides[get_user_service] = lambda: mock_user_service
     app.dependency_overrides[get_current_user] = lambda: test_user
-    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as ac:
+    async with AsyncClient(
+        transport=ASGITransport(app=app), base_url="http://test"
+    ) as ac:
         yield ac, mock_user_service
     app.dependency_overrides.pop(get_user_service, None)
     app.dependency_overrides.pop(get_current_user, None)
@@ -98,7 +106,9 @@ async def user_client(mock_user_service, test_user):
 async def post_client(mock_post_service, test_user):
     app.dependency_overrides[get_post_service] = lambda: mock_post_service
     app.dependency_overrides[get_current_user] = lambda: test_user
-    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as ac:
+    async with AsyncClient(
+        transport=ASGITransport(app=app), base_url="http://test"
+    ) as ac:
         yield ac, mock_post_service
     app.dependency_overrides.pop(get_post_service, None)
     app.dependency_overrides.pop(get_current_user, None)
@@ -107,6 +117,8 @@ async def post_client(mock_post_service, test_user):
 @pytest.fixture
 async def anon_post_client(mock_post_service):
     app.dependency_overrides[get_post_service] = lambda: mock_post_service
-    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as ac:
+    async with AsyncClient(
+        transport=ASGITransport(app=app), base_url="http://test"
+    ) as ac:
         yield ac, mock_post_service
     app.dependency_overrides.pop(get_post_service, None)

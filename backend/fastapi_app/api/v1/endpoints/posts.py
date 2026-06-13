@@ -23,12 +23,18 @@ async def list_posts(
     service: PostService = Depends(get_post_service),
 ) -> ApiResponse[list[PostListItem]]:
     items, meta = await service.list_posts(
-        search=search, date_from=date_from, date_to=date_to, page=page, page_size=page_size
+        search=search,
+        date_from=date_from,
+        date_to=date_to,
+        page=page,
+        page_size=page_size,
     )
     return ApiResponse.ok(data=items, meta=meta)
 
 
-@router.post("", status_code=status.HTTP_201_CREATED, response_model=ApiResponse[PostRead])
+@router.post(
+    "", status_code=status.HTTP_201_CREATED, response_model=ApiResponse[PostRead]
+)
 async def create_post(
     data: PostCreate,
     current_user: User = Depends(get_current_user),

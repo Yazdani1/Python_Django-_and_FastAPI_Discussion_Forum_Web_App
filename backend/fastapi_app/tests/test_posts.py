@@ -2,7 +2,6 @@ import uuid
 from datetime import datetime, timezone
 
 import pytest
-from httpx import AsyncClient
 
 from fastapi_app.schemas.post import PostListItem, PostRead
 from fastapi_app.schemas.user import UserPublic
@@ -13,7 +12,9 @@ from fastapi_app.utils.responses import MetaData
 
 def _author() -> UserPublic:
     user = make_user()
-    return UserPublic(id=user.id, username=user.username, avatar_url=None, role=user.role)
+    return UserPublic(
+        id=user.id, username=user.username, avatar_url=None, role=user.role
+    )
 
 
 def _post_read(post_id: uuid.UUID | None = None) -> PostRead:
@@ -75,7 +76,10 @@ async def test_create_post_success(post_client):
 
     response = await ac.post(
         "/api/v1/posts",
-        json={"title": "My New Post Title", "content": "This is the content of my new post."},
+        json={
+            "title": "My New Post Title",
+            "content": "This is the content of my new post.",
+        },
     )
 
     assert response.status_code == 201
@@ -157,7 +161,9 @@ async def test_update_post_success(post_client):
 async def test_update_post_forbidden(post_client):
     ac, mock_svc = post_client
     post_id = uuid.uuid4()
-    mock_svc.update_post.side_effect = ForbiddenError("You can only edit your own posts")
+    mock_svc.update_post.side_effect = ForbiddenError(
+        "You can only edit your own posts"
+    )
 
     response = await ac.put(
         f"/api/v1/posts/{post_id}",
@@ -183,7 +189,9 @@ async def test_delete_post_success(post_client):
 async def test_delete_post_forbidden(post_client):
     ac, mock_svc = post_client
     post_id = uuid.uuid4()
-    mock_svc.delete_post.side_effect = ForbiddenError("You can only delete your own posts")
+    mock_svc.delete_post.side_effect = ForbiddenError(
+        "You can only delete your own posts"
+    )
 
     response = await ac.delete(f"/api/v1/posts/{post_id}")
 

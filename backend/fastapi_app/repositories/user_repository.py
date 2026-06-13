@@ -2,7 +2,6 @@ import uuid
 
 from sqlalchemy import func, select
 
-from fastapi_app.core.database import Base
 from fastapi_app.models.post import Post
 from fastapi_app.models.user import User
 from fastapi_app.repositories.base import BaseRepository
@@ -29,7 +28,9 @@ class UserRepository(BaseRepository[User]):
         )
         return result.scalar_one() > 0
 
-    async def username_exists(self, username: str, exclude_id: uuid.UUID | None = None) -> bool:
+    async def username_exists(
+        self, username: str, exclude_id: uuid.UUID | None = None
+    ) -> bool:
         query = select(func.count()).select_from(User).where(User.username == username)
         if exclude_id is not None:
             query = query.where(User.id != exclude_id)

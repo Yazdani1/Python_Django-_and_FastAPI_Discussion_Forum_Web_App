@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, File, UploadFile, status
+from fastapi import APIRouter, Depends, File, UploadFile
 
 from fastapi_app.api.v1.dependencies import get_user_service
 from fastapi_app.core.dependencies import get_current_user

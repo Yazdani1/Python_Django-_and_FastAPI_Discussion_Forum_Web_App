@@ -8,7 +8,7 @@ from fastapi_app.repositories.post_repository import PostRepository
 from fastapi_app.schemas.post import PostCreate, PostListItem, PostRead, PostUpdate
 from fastapi_app.services.base import BaseService
 from fastapi_app.utils.exceptions import ForbiddenError, NotFoundError
-from fastapi_app.utils.responses import ApiResponse, MetaData
+from fastapi_app.utils.responses import MetaData
 
 
 class PostService(BaseService[Post, PostRepository]):
@@ -55,13 +55,17 @@ class PostService(BaseService[Post, PostRepository]):
         ]
         return items, meta
 
-    async def update_post(self, post_id: uuid.UUID, current_user: User, data: PostUpdate) -> PostRead:
+    async def update_post(
+        self, post_id: uuid.UUID, current_user: User, data: PostUpdate
+    ) -> PostRead:
         post = await self._repo.get_with_author(post_id)
         if not post:
             raise NotFoundError("Post")
 
         is_owner = post.author_id == current_user.id
-        is_privileged = ROLE_LEVELS.get(current_user.role, 0) >= ROLE_LEVELS[UserRole.MODERATOR]
+        is_privileged = (
+            ROLE_LEVELS.get(current_user.role, 0) >= ROLE_LEVELS[UserRole.MODERATOR]
+        )
         if not is_owner and not is_privileged:
             raise ForbiddenError("You can only edit your own posts")
 
@@ -83,7 +87,9 @@ class PostService(BaseService[Post, PostRepository]):
             raise NotFoundError("Post")
 
         is_owner = post.author_id == current_user.id
-        is_privileged = ROLE_LEVELS.get(current_user.role, 0) >= ROLE_LEVELS[UserRole.MODERATOR]
+        is_privileged = (
+            ROLE_LEVELS.get(current_user.role, 0) >= ROLE_LEVELS[UserRole.MODERATOR]
+        )
         if not is_owner and not is_privileged:
             raise ForbiddenError("You can only delete your own posts")
 

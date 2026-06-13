@@ -36,7 +36,9 @@ class ApiResponse(BaseModel, Generic[T]):
         return cls(success=True, message=message, data=data, meta=meta)
 
     @classmethod
-    def created(cls, data: Any = None, message: str = "Created successfully") -> "ApiResponse":
+    def created(
+        cls, data: Any = None, message: str = "Created successfully"
+    ) -> "ApiResponse":
         return cls(success=True, message=message, data=data)
 
 
@@ -50,7 +52,9 @@ class ApiError(BaseModel):
     meta: None = None
 
     @classmethod
-    def validation_error(cls, errors: list[ErrorDetail], message: str = "Validation failed") -> "ApiError":
+    def validation_error(
+        cls, errors: list[ErrorDetail], message: str = "Validation failed"
+    ) -> "ApiError":
         return cls(message=message, errors=errors)
 
     @classmethod

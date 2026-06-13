@@ -23,7 +23,9 @@ class BaseRepository(Generic[ModelT]):
         return await self._session.get(self.model, record_id)
 
     async def get_all(self, *, offset: int = 0, limit: int = 20) -> list[ModelT]:
-        result = await self._session.execute(select(self.model).offset(offset).limit(limit))
+        result = await self._session.execute(
+            select(self.model).offset(offset).limit(limit)
+        )
         return list(result.scalars().all())
 
     async def create(self, **kwargs: Any) -> ModelT:
@@ -47,5 +49,8 @@ class BaseRepository(Generic[ModelT]):
 
     async def count(self) -> int:
         from sqlalchemy import func
-        result = await self._session.execute(select(func.count()).select_from(self.model))
+
+        result = await self._session.execute(
+            select(func.count()).select_from(self.model)
+        )
         return result.scalar_one()
