@@ -1,0 +1,9 @@
+{
+  "editor.formatOnSave": true,
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "explicit",
+    "source.removeUnusedImports": "explicit"
+  },
+  "eslint.validate": ["typescript", "typescriptreact"],
+  "typescript.preferences.removeUnusedImports": "all"
+}
