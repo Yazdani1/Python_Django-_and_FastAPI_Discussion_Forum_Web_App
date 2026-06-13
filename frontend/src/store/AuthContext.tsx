@@ -1,4 +1,4 @@
-import { createContext, type FC, type ReactNode, useCallback, useContext, useEffect, useState } from 'react';
+import { createContext, type FC, type ReactNode, useCallback, useEffect, useState } from 'react';
 import { authService } from '@/services/authService';
 import type { IAuthUser, ILoginRequest, IRegisterRequest } from '@/types/auth.types';
 
@@ -11,7 +11,7 @@ interface IAuthContextValue {
   setUser: (user: IAuthUser | null) => void;
 }
 
-const AuthContext = createContext<IAuthContextValue | null>(null);
+export const AuthContext = createContext<IAuthContextValue | null>(null);
 
 interface IAuthProviderProps {
   children: ReactNode;
@@ -52,8 +52,3 @@ export const AuthProvider: FC<IAuthProviderProps> = ({ children }) => {
   );
 };
 
-export const useAuthContext = (): IAuthContextValue => {
-  const ctx = useContext(AuthContext);
-  if (!ctx) throw new Error('useAuthContext must be used within AuthProvider');
-  return ctx;
-};
