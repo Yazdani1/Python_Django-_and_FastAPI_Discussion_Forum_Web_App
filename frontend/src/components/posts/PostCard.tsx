@@ -6,10 +6,9 @@ import {
 	Card,
 	CardActionArea,
 	CardContent,
-	Chip,
 	Typography,
 } from '@mui/material';
-import { AccessTime, Person } from '@mui/icons-material';
+import { AccessTime } from '@mui/icons-material';
 import { ROUTES } from '@/router/routes';
 import type { IPostListItem } from '@/types/post.types';
 

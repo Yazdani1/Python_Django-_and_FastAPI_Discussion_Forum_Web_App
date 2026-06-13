@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
-import { Box, Button, Container, Typography } from '@mui/material';
+import { Button, Container, Typography } from '@mui/material';
 import { ArrowBack } from '@mui/icons-material';
 import { postService } from '@/services/postService';
 import { PostForm } from '@/components/posts/PostForm';

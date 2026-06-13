@@ -14,7 +14,6 @@ import {
   Typography,
 } from '@mui/material';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
-import { notificationService } from '@/utils/notificationService';
 import { authService } from '@/services/authService';
 import { ROUTES } from '@/router/routes';
 
