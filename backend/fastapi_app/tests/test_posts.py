@@ -125,7 +125,7 @@ async def test_get_post_success(anon_post_client):
     assert response.status_code == 200
     body = response.json()
     assert body["data"]["id"] == str(post_id)
-    mock_svc.get_post.assert_called_once_with(post_id)
+    mock_svc.get_post.assert_called_once_with(post_id, None)
 
 
 @pytest.mark.asyncio

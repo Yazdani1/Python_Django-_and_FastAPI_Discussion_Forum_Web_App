@@ -8,12 +8,18 @@ import {
   Container,
   Divider,
   Paper,
+  Tooltip,
   Typography,
 } from '@mui/material';
-import { ArrowBack, Delete, Edit } from '@mui/icons-material';
+import { ArrowBack, Block, Delete, Edit, LockOpen } from '@mui/icons-material';
 import { postService } from '@/services/postService';
+import { voteService } from '@/services/voteService';
+import { adminService } from '@/services/adminService';
 import { useAuth } from '@/hooks/useAuth';
 import { ROUTES } from '@/router/routes';
+import { VoteButtons } from '@/components/posts/VoteButtons';
+import { ActionsMenu } from '@/components/common/ActionsMenu';
+import { AnswerList } from '@/components/answers/AnswerList';
 
 const PostDetailPage = () => {
   const { id } = useParams<{ id: string }>();
@@ -33,6 +39,19 @@ const PostDetailPage = () => {
       queryClient.invalidateQueries({ queryKey: ['posts'] });
       navigate(ROUTES.HOME);
     },
+  });
+
+  const voteMutation = useMutation({
+    mutationFn: () => voteService.votePost(id!, { vote_type: 'up' }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['post', id] }),
+  });
+
+  const blockMutation = useMutation({
+    mutationFn: (userId: string) => adminService.blockUser(userId),
+  });
+
+  const unblockMutation = useMutation({
+    mutationFn: (userId: string) => adminService.unblockUser(userId),
   });
 
   const post = res?.data;
@@ -55,11 +74,30 @@ const PostDetailPage = () => {
 
   const isOwner = user?.id === post.author.id;
   const isPrivileged = user?.role === 'moderator' || user?.role === 'admin';
-  const canEdit = isOwner || isPrivileged;
+  const isAdmin = user?.role === 'admin';
+  const canManage = isOwner || isPrivileged;
+  const canAdminAuthor = isAdmin && !isOwner;
 
   const formattedDate = new Date(post.created_at).toLocaleDateString('en-US', {
-    year: 'numeric', month: 'long', day: 'numeric',
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
   });
+
+  const postMenuItems = [
+    {
+      label: 'Edit',
+      icon: <Edit fontSize="small" />,
+      onClick: () => navigate(ROUTES.EDIT_POST(post.id)),
+    },
+    {
+      label: 'Delete',
+      icon: <Delete fontSize="small" />,
+      onClick: () => deleteMutation.mutate(),
+      color: 'error' as const,
+      disabled: deleteMutation.isPending,
+    },
+  ];
 
   return (
     <Container maxWidth="lg" sx={{ py: 4 }}>
@@ -73,31 +111,43 @@ const PostDetailPage = () => {
             {post.title}
           </Typography>
 
-          {canEdit && (
-            <Box sx={{ display: 'flex', gap: 1 }}>
-              <Button
-                startIcon={<Edit />}
-                variant="outlined"
-                size="small"
-                onClick={() => navigate(ROUTES.EDIT_POST(post.id))}
-              >
-                Edit
-              </Button>
-              <Button
-                startIcon={<Delete />}
-                variant="outlined"
-                color="error"
-                size="small"
-                onClick={() => deleteMutation.mutate()}
-                disabled={deleteMutation.isPending}
-              >
-                Delete
-              </Button>
-            </Box>
-          )}
+          <Box sx={{ display: 'flex', gap: 1, alignItems: 'center', flexShrink: 0 }}>
+            {canAdminAuthor && (
+              <>
+                <Tooltip title={`Block ${post.author.username}`}>
+                  <span>
+                    <Button
+                      startIcon={<Block />}
+                      variant="outlined"
+                      color="warning"
+                      size="small"
+                      onClick={() => blockMutation.mutate(post.author.id)}
+                      disabled={blockMutation.isPending}
+                    >
+                      Block
+                    </Button>
+                  </span>
+                </Tooltip>
+                <Tooltip title={`Unblock ${post.author.username}`}>
+                  <span>
+                    <Button
+                      startIcon={<LockOpen />}
+                      variant="outlined"
+                      size="small"
+                      onClick={() => unblockMutation.mutate(post.author.id)}
+                      disabled={unblockMutation.isPending}
+                    >
+                      Unblock
+                    </Button>
+                  </span>
+                </Tooltip>
+              </>
+            )}
+            {canManage && <ActionsMenu items={postMenuItems} />}
+          </Box>
         </Box>
 
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 3 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 3 }}>
           <Avatar
             src={post.author.avatar_url ?? undefined}
             sx={{ width: 28, height: 28, bgcolor: 'secondary.main', fontSize: 13 }}
@@ -107,6 +157,13 @@ const PostDetailPage = () => {
           <Typography variant="body2" color="text.secondary">
             {post.author.username} · {formattedDate}
           </Typography>
+          <VoteButtons
+            voteCount={post.vote_count}
+            isLiked={post.user_vote === 'up'}
+            onToggle={() => voteMutation.mutate()}
+            isLoading={voteMutation.isPending}
+            disabled={!user}
+          />
         </Box>
 
         <Divider sx={{ mb: 3 }} />
@@ -115,6 +172,8 @@ const PostDetailPage = () => {
           {post.content}
         </Typography>
       </Paper>
+
+      <AnswerList postId={post.id} />
     </Container>
   );
 };

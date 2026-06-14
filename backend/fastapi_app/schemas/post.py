@@ -21,6 +21,9 @@ class PostRead(BaseModel):
     title: str
     content: str
     author: UserPublic
+    vote_count: int = 0
+    answer_count: int = 0
+    user_vote: str | None = None
     created_at: datetime
     updated_at: datetime
 
@@ -32,6 +35,8 @@ class PostListItem(BaseModel):
     title: str
     preview: str
     author: UserPublic
+    answer_count: int = 0
+    vote_count: int = 0
     created_at: datetime
 
     model_config = ConfigDict(from_attributes=True)

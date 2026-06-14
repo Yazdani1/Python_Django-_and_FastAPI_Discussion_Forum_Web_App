@@ -12,6 +12,9 @@ export interface IPost {
   title: string;
   content: string;
   author: IPostAuthor;
+  vote_count: number;
+  answer_count: number;
+  user_vote: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -21,6 +24,8 @@ export interface IPostListItem {
   title: string;
   preview: string;
   author: IPostAuthor;
+  answer_count: number;
+  vote_count: number;
   created_at: string;
 }
 
@@ -36,6 +41,7 @@ export interface IPostUpdateRequest {
 
 export interface IPostSearchParams {
   search?: string;
+  author?: string;
   date_from?: string;
   date_to?: string;
   page?: number;

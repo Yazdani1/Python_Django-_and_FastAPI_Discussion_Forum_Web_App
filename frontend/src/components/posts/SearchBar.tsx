@@ -10,6 +10,7 @@ interface ISearchBarProps {
 
 export const SearchBar: FC<ISearchBarProps> = ({ onSearch, initialParams = {} }) => {
   const [search, setSearch] = useState(initialParams.search ?? '');
+  const [author, setAuthor] = useState(initialParams.author ?? '');
   const [dateFrom, setDateFrom] = useState(initialParams.date_from ?? '');
   const [dateTo, setDateTo] = useState(initialParams.date_to ?? '');
 
@@ -17,6 +18,7 @@ export const SearchBar: FC<ISearchBarProps> = ({ onSearch, initialParams = {} })
     e.preventDefault();
     onSearch({
       search: search || undefined,
+      author: author || undefined,
       date_from: dateFrom || undefined,
       date_to: dateTo || undefined,
       page: 1,
@@ -25,6 +27,7 @@ export const SearchBar: FC<ISearchBarProps> = ({ onSearch, initialParams = {} })
 
   const handleClear = () => {
     setSearch('');
+    setAuthor('');
     setDateFrom('');
     setDateTo('');
     onSearch({ page: 1 });
@@ -42,6 +45,14 @@ export const SearchBar: FC<ISearchBarProps> = ({ onSearch, initialParams = {} })
         value={search}
         onChange={(e) => setSearch(e.target.value)}
         sx={{ flexGrow: 1, minWidth: 200 }}
+      />
+
+      <TextField
+        label="Author"
+        size="small"
+        value={author}
+        onChange={(e) => setAuthor(e.target.value)}
+        sx={{ width: 140 }}
       />
 
       <TextField

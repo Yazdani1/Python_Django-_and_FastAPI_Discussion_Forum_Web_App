@@ -3,17 +3,19 @@ from datetime import date
 
 from fastapi import APIRouter, Depends, Query, Response, status
 
-from fastapi_app.api.v1.dependencies import get_post_service
+from fastapi_app.api.v1.dependencies import get_post_service, get_vote_service
 from fastapi_app.core.cache import (
     cache_delete,
     cache_delete_pattern,
     cache_get,
     cache_set,
 )
-from fastapi_app.core.dependencies import get_current_user
+from fastapi_app.core.dependencies import get_current_user, get_optional_current_user
 from fastapi_app.models.user import User
 from fastapi_app.schemas.post import PostCreate, PostListItem, PostRead, PostUpdate
+from fastapi_app.schemas.vote import VoteRequest, VoteResult
 from fastapi_app.services.post_service import PostService
+from fastapi_app.services.vote_service import VoteService
 from fastapi_app.utils.responses import ApiResponse
 
 router = APIRouter(prefix="/posts", tags=["posts"])
@@ -24,12 +26,13 @@ _DETAIL_TTL = 300  # seconds — single post cache
 
 def _list_key(
     search: str | None,
+    author: str | None,
     date_from: date | None,
     date_to: date | None,
     page: int,
     page_size: int,
 ) -> str:
-    return f"posts:list:{search}:{date_from}:{date_to}:{page}:{page_size}"
+    return f"posts:list:{search}:{author}:{date_from}:{date_to}:{page}:{page_size}"
 
 
 def _detail_key(post_id: uuid.UUID) -> str:
@@ -40,13 +43,14 @@ def _detail_key(post_id: uuid.UUID) -> str:
 async def list_posts(
     response: Response,
     search: str | None = Query(default=None, max_length=100),
+    author: str | None = Query(default=None, max_length=50),
     date_from: date | None = Query(default=None),
     date_to: date | None = Query(default=None),
     page: int = Query(default=1, ge=1),
     page_size: int = Query(default=20, ge=1, le=100),
     service: PostService = Depends(get_post_service),
 ) -> ApiResponse[list[PostListItem]]:
-    cache_key = _list_key(search, date_from, date_to, page, page_size)
+    cache_key = _list_key(search, author, date_from, date_to, page, page_size)
     cached = await cache_get(cache_key)
     if cached:
         response.headers["X-Cache"] = "HIT"
@@ -54,6 +58,7 @@ async def list_posts(
 
     items, meta = await service.list_posts(
         search=search,
+        author=author,
         date_from=date_from,
         date_to=date_to,
         page=page,
@@ -82,17 +87,24 @@ async def create_post(
 async def get_post(
     post_id: uuid.UUID,
     response: Response,
+    current_user: User | None = Depends(get_optional_current_user),
     service: PostService = Depends(get_post_service),
 ) -> ApiResponse[PostRead]:
-    cache_key = _detail_key(post_id)
-    cached = await cache_get(cache_key)
-    if cached:
-        response.headers["X-Cache"] = "HIT"
-        return ApiResponse(**cached)
+    # Cache only for anonymous — authenticated users see their own vote state
+    if current_user is None:
+        cache_key = _detail_key(post_id)
+        cached = await cache_get(cache_key)
+        if cached:
+            response.headers["X-Cache"] = "HIT"
+            return ApiResponse(**cached)
 
-    post = await service.get_post(post_id)
+    post = await service.get_post(post_id, current_user.id if current_user else None)
     result = ApiResponse.ok(data=post)
-    await cache_set(cache_key, result.model_dump(mode="json"), ttl=_DETAIL_TTL)
+
+    if current_user is None:
+        await cache_set(
+            _detail_key(post_id), result.model_dump(mode="json"), ttl=_DETAIL_TTL
+        )
     response.headers["X-Cache"] = "MISS"
     return result
 
@@ -119,3 +131,35 @@ async def delete_post(
     await service.delete_post(post_id, current_user)
     await cache_delete(_detail_key(post_id))
     await cache_delete_pattern("posts:list:*")
+
+
+# ── Vote endpoints ────────────────────────────────────────────────────────────
+
+
+@router.post("/{post_id}/vote", response_model=ApiResponse[VoteResult])
+async def vote_post(
+    post_id: uuid.UUID,
+    data: VoteRequest,
+    current_user: User = Depends(get_current_user),
+    service: VoteService = Depends(get_vote_service),
+) -> ApiResponse[VoteResult]:
+    result = await service.vote_post(post_id, current_user, data.vote_type)
+    await cache_delete(_detail_key(post_id))
+    await cache_delete_pattern("posts:list:*")
+    return ApiResponse.ok(data=result)
+
+
+@router.delete(
+    "/{post_id}/vote",
+    status_code=status.HTTP_200_OK,
+    response_model=ApiResponse[VoteResult],
+)
+async def remove_post_vote(
+    post_id: uuid.UUID,
+    current_user: User = Depends(get_current_user),
+    service: VoteService = Depends(get_vote_service),
+) -> ApiResponse[VoteResult]:
+    result = await service.remove_post_vote(post_id, current_user)
+    await cache_delete(_detail_key(post_id))
+    await cache_delete_pattern("posts:list:*")
+    return ApiResponse.ok(data=result)

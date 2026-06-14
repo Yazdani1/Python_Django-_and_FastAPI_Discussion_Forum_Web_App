@@ -5,6 +5,7 @@ from sqlalchemy import func, or_, select
 from sqlalchemy.orm import joinedload
 
 from fastapi_app.models.post import Post
+from fastapi_app.models.user import User
 from fastapi_app.repositories.base import BaseRepository
 from fastapi_app.utils.responses import MetaData
 
@@ -22,16 +23,23 @@ class PostRepository(BaseRepository[Post]):
         self,
         *,
         search: str | None = None,
+        author: str | None = None,
         date_from: date | None = None,
         date_to: date | None = None,
         page: int = 1,
         page_size: int = 20,
     ) -> tuple[list[Post], MetaData]:
-        query = select(Post).options(joinedload(Post.author))
+        query = (
+            select(Post)
+            .options(joinedload(Post.author))
+            .join(User, Post.author_id == User.id)
+        )
 
         if search:
             term = f"%{search}%"
             query = query.where(or_(Post.title.ilike(term), Post.content.ilike(term)))
+        if author:
+            query = query.where(User.username.ilike(f"%{author}%"))
         if date_from:
             dt_from = datetime(
                 date_from.year, date_from.month, date_from.day, tzinfo=timezone.utc

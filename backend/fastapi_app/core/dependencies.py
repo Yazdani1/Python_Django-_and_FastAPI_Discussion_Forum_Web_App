@@ -62,5 +62,21 @@ def require_role(minimum_role: UserRole):
     return _check
 
 
+async def get_optional_current_user(
+    access_token: str | None = Cookie(default=None),
+    db: AsyncSession = Depends(get_db),
+) -> User | None:
+    if not access_token:
+        return None
+    try:
+        user_id_str = JWTHandler.get_subject(access_token)
+        uid = uuid.UUID(user_id_str)
+        result = await db.execute(select(User).where(User.id == uid))
+        user = result.scalar_one_or_none()
+        return user if user and user.is_active else None
+    except Exception:
+        return None
+
+
 async def get_db_session(db: AsyncSession = Depends(get_db)) -> AsyncSession:
     return db
